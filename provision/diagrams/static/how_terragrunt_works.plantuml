@@ -1,0 +1,15 @@
+@startuml
+skinparam roundCorner 15
+Terragrunt -> Terraform: Send command instructions
+Terraform -> Provider: Send make resource
+Provider --> Api: Convert configuration to payload
+Api --> Api: Validate if the states are not created
+Api --> Provider: Response Validation
+Provider --> Terraform: Return information of resources to update
+Terraform -> Provider: confirm changes
+Provider --> Api: Execute changes
+Terraform -> Terragrunt: return response
+Terragrunt --> S3: Save states
+S3 --> Terragrunt: Return md5 changes
+Terragrunt --> DynamoDB: save md5
+@enduml

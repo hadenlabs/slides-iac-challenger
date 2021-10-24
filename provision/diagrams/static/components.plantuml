@@ -1,2 +1,20 @@
 @startuml
+skinparam roundCorner 15
+file data as data
+file required_providers as versions
+file variables as variables
+file resources as resources
+file providers as providers
+file outputs as outputs
+
+control "terraform apply" as terraform_command
+
+providers --> resources
+variables --> resources
+data --> resources
+resources <-- terraform_command
+versions <-- terraform_command
+
+terraform_command --> outputs
+resources --> outputs
 @enduml
