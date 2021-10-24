@@ -1,4 +1,4 @@
-origin: github.com/hadenlabs/slides-template
+origin: github.com/hadenlabs/slides-iac-challenger
 issue_tracker: GITHUB
 auth:
   type: none

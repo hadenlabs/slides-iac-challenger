@@ -1,4 +1,4 @@
-<!-- Space: SlidesTemplate -->
+<!-- Space: SlidesIacChallenger -->
 <!-- Parent: Project -->
 <!-- Title: Roadmap -->
 
@@ -30,7 +30,7 @@
 
 The Roadmap is a list of all the things we're working on for the year.
 
-You can see the corresponding projects on [slides-template](https://github.com/hadenlabs/slides-template)
+You can see the corresponding projects on [slides-iac-challenger](https://github.com/hadenlabs/slides-iac-challenger)
 
 ## Legend
 

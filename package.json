@@ -1,7 +1,7 @@
 {
-  "name": "@hadenlabs/slides-template",
+  "name": "@hadenlabs/slides-iac-challenger",
   "version": "0.0.0",
-  "description": "slides-template",
+  "description": "slides-iac-challenger",
   "author": "Luis Mayta <slovacus@gmail.com>",
   "license": "LGPL-3.0",
   "engines": {
@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hadenlabs/slides-template.git"
+    "url": "git+https://github.com/hadenlabs/slides-iac-challenger.git"
   },
   "keywords": [
     "story-user",
@@ -37,9 +37,9 @@
     "hadenlabs"
   ],
   "bugs": {
-    "url": "https://github.com/hadenlabs/slides-template/issues"
+    "url": "https://github.com/hadenlabs/slides-iac-challenger/issues"
   },
-  "homepage": "https://github.com/hadenlabs/slides-template#readme",
+  "homepage": "https://github.com/hadenlabs/slides-iac-challenger#readme",
   "dependencies": {
     "code-surfer": "^3.1.1",
     "gatsby": "^2.24.92",
