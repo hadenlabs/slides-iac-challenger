@@ -1,5 +1,8 @@
 import { CodeSurfer } from "code-surfer"
-import processThinking from './images/process-thinking.jpg'
+import processThinking from '/static/images/process-thinking.jpg'
+import howTerraformWorks from '/static/how_terraform_works.png'
+import howTerragruntWorks from '/static/how_terragrunt_works.png'
+import componentsTerraform from '/static/components.png'
 import oceanicNext  from "./theme"
 import {Appear, Notes, Head} from 'mdx-deck';
 import 'prismjs/components/prism-shell-session'
@@ -8,16 +11,17 @@ import "prismjs/components/prism-markdown"
 export const theme = oceanicNext
 
 <Head>
-  <title>Slides Iac Challenger</title>
+  <title>IaC Challenger</title>
 </Head>
 
-## Slides Iac Challenger
+
+## IaC Challenger
 
 ---
 
 ## IaC Challenger | Terraform
 
-- [@hadenlabs | Hadenlabs.com](https://github.com/hadenlabs)
+- [@luismayta | DevOps Engineer](https://github.com/luismayta)
 
 ---
 
@@ -33,20 +37,778 @@ export const theme = oceanicNext
 
 ## Agenda
 
-- Title 1.
-- Title 2.
-- Title 3.
+- What is Infrastructure as Code?
+- Goals
+- Tools
+- Initial Challenges
+- Scaling Challenges
 
 ---
 
-## Example
+#### What Is Infrastructure as Code?
+
+<Appear>
+
+Managed and provisioned through code.
+
+</Appear>
+
+---
+
+## Goals
 
 <CodeSurfer>
 
 ```markdown
-
-    text
-
+- **Unify** the view of resources
+- **Support** the modern data center (IaaS, PaaS, SaaS)
+- Expose a Way for individuals and teams to **safely and predictably change** infrastructure
+- Provide a workflow that is **technology agnostic**
+- Manage anything with an **API**
 ```
 
 </CodeSurfer>
+
+---
+
+## Tools
+
+---
+
+- [Aws Cloudformation](https://aws.amazon.com/cloudformation)
+
+---
+
+### Example
+
+---
+
+<CodeSurfer>
+
+```yaml showNumbers
+
+EC2Instance:
+  Type: AWS::EC2::Instance
+  Properties:
+      ImageId: !FindInMap [ AWSRegionArch2AMI, !Ref 'AWS::Region' , !FindInMap [ AWSInstanceType2Arch, !Ref InstanceType, Arch ] ]
+      KeyName: !Ref KeyName
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+      - !Ref Ec2SecurityGroup
+      BlockDeviceMappings:
+      -
+          DeviceName: /dev/sda1
+          Ebs:
+          VolumeSize: 50
+      -
+          DeviceName: /dev/sdm
+          Ebs:
+          VolumeSize: 100
+
+```
+
+```diff 3 title="Especify type of resource"
+```
+
+```diff 5:7 title="Configuration ec2 instance"
+```
+
+```diff 8:9 title="Added security Group"
+```
+
+```diff 10:18 title="Configuration Block Device"
+```
+
+</CodeSurfer>
+
+
+---
+
+- [Pulumi](https://www.pulumi.com)
+
+---
+
+### Example
+
+---
+
+<CodeSurfer>
+
+```go showNumbers
+
+package main
+
+import (
+	"github.com/pulumi/pulumi-aws/sdk/v4/go/aws/ec2"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+)
+
+func main() {
+	pulumi.Run(func(ctx *pulumi.Context) error {
+		// Create a new security group for port 80.
+		group, err := ec2.NewSecurityGroup(ctx, "web-secgrp", &ec2.SecurityGroupArgs{
+			Ingress: ec2.SecurityGroupIngressArray{
+				ec2.SecurityGroupIngressArgs{
+					Protocol:   pulumi.String("tcp"),
+					FromPort:   pulumi.Int(80),
+					ToPort:     pulumi.Int(80),
+					CidrBlocks: pulumi.StringArray{pulumi.String("0.0.0.0/0")},
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		// Get the ID for the 20.04 Ubuntu Linux AMI.
+		mostRecent := true
+		ami, err := ec2.LookupAmi(ctx, &ec2.LookupAmiArgs{
+			Filters: []ec2.GetAmiFilter{
+				{
+					Name:   "name",
+					Values: []string{"ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"},
+				},
+			},
+			Owners:     []string{"099720109477"},
+			MostRecent: &mostRecent,
+		})
+		if err != nil {
+			return err
+		}
+
+		// Create a simple instance using the startup script for the instance.
+		srv, err := ec2.NewInstance(ctx, "instance", &ec2.InstanceArgs{
+			Tags:                pulumi.StringMap{"Name": pulumi.String("instance-server")},
+			InstanceType:        pulumi.String("t2.micro"), // t2.micro is available in the AWS free tier.
+			VpcSecurityGroupIds: pulumi.StringArray{group.ID()},
+			Ami:                 pulumi.String(ami.Id),
+			UserData: pulumi.String(`#!/bin/bash
+echo "Hello, World!"
+`),
+		})
+
+		// Export the resulting server's IP address and DNS name.
+		ctx.Export("publicIp", srv.PublicIp)
+		ctx.Export("publicHostName", srv.PublicDns)
+		return nil
+	})
+}
+```
+
+```diff 4:7 title="Import libraries"
+```
+
+```diff 12:21 title="Make new security Group"
+```
+
+```diff 26:37 title="Get Id AMI Ubuntu"
+```
+
+```diff 42:51 title="Make new instance"
+```
+
+</CodeSurfer>
+
+---
+
+- [Terraform](https://www.terraform.io)
+
+<Appear>
+
+Write, Plan, and Create Infrastructure as Code.
+
+</Appear>
+
+---
+
+### Example
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+
+resource "aws_instance" "this" {
+  ami               = "ami of linux"
+  instance_type     = "t2.micro"
+  key_name          = "aws key name"
+  source_dest_check = true
+
+  root_block_device {
+    encrypted             = true
+    volume_type           = "gp2"
+    volume_size           = "16"
+    delete_on_termination = true
+  }
+  ...
+
+}
+```
+
+```diff 3:5 title="Configuration of instance"
+```
+
+```diff 8:13 title="Configuration root block device"
+```
+
+</CodeSurfer>
+
+---
+
+### Components Terraform
+
+<Image src={componentsTerraform} style={{ backgroundSize: 'auto' }} />
+
+---
+
+### How Terraform Works
+
+<Image src={howTerraformWorks} style={{ backgroundSize: 'auto' }} />
+
+---
+
+### Terragrunt
+
+<Appear>
+
+Terragrunt is a thin wrapper that provides extra tools for keeping your configurations DRY
+
+</Appear>
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+terraform {
+  extra_arguments "retry_lock" {
+    commands = get_terraform_commands_that_need_locking()
+    arguments = [
+      "-lock-timeout=40m"
+    ]
+  }
+  extra_arguments "parallelism" {
+    commands = get_terraform_commands_that_need_parallelism()
+    arguments = [
+      "-parallelism=15"
+    ]
+  }
+}
+
+remote_state {
+  backend = "s3"
+  config = {
+    bucket  = "name of bucket"
+    encrypt = true
+    # Configure Terragrunt to automatically store tfstate files in an S3 bucket
+    key            = "${path_relative_to_include()}/terraform.tfstate"
+    region         = "region of aws"
+    dynamodb_table = "table of dynamodb"
+
+    s3_bucket_tags = {
+      owner = "owner tag"
+      name  = "Terraform state storage"
+    }
+
+    # dynamodb_table_tags is an attribute, so an equals sign is REQUIRED
+    dynamodb_table_tags = {
+      owner = "owner tag"
+      name  = "Terraform lock table"
+    }
+  }
+}
+```
+
+```diff 1:13 title="Implement extra args to terraform."
+```
+
+```diff 16:17 title="Remote State"
+```
+
+```diff 18:23 title="Configuration bucket s3"
+```
+
+```diff 26:29  title="Configuration Tags S3"
+```
+
+```diff 24 title="Configuration DynamoDB Table"
+```
+
+```diff 32:35  title="Configuration Tags DynamoDB"
+```
+
+</CodeSurfer>
+
+---
+
+### How Terragrunt Works
+
+<Image src={howTerragruntWorks} style={{ backgroundSize: 'auto' }} />
+
+---
+
+## Initial Challenges
+
+---
+
+### Need to learn to Code
+
+<Appear>
+
+HCL is the HashiCorp configuration language.
+
+</Appear>
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+resource "aws_instance" "this" {
+  ami               = "ami of linux"
+  instance_type     = "t2.micro"
+  key_name          = "aws key name"
+
+  vpc_security_group_ids = [
+    aws_security_group.this.id
+  ]
+}
+```
+
+```diff 2:4  title="Configuration resource"
+```
+
+</CodeSurfer>
+
+---
+
+### Can't automate a resource
+
+<Appear>
+
+- [Providers](https://registry.terraform.io/browse/providers)
+
+</Appear>
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+terraform {
+  required_version = ">= 0.13"
+
+  required_providers {
+    gitlab = {
+      source  = "gitlabhq/gitlab"
+      version = ">=3.5.0"
+    }
+  }
+}
+```
+
+```diff 4:9 title="Implement providers"
+```
+
+</CodeSurfer>
+
+---
+
+- [Providers](https://registry.terraform.io/browse/providers)
+
+---
+
+### Can't track changes
+
+<Appear>
+
+Implement Repository Git.
+
+</Appear>
+
+---
+
+<CodeSurfer>
+
+```bash showNumbers
+2021-09-29 23:44 -0500 luis mayta o [feature/DOPS-351] {origin/feature/DOPS-351} feat: DOPS-351 change version terraform
+2021-09-29 14:23 -0500 luis mayta o build: DOPS-351 generate files readme
+2021-09-29 14:22 -0500 luis mayta o fix: DOPS-351 delete name other company
+2021-09-29 14:21 -0500 luis mayta o sample: DOPS-351 implement basic sample
+2021-09-29 14:19 -0500 luis mayta o fix: DOPS-351 execute test using terraform test
+2021-09-29 14:17 -0500 luis mayta o fix: DOPS-351 link broke load module project
+2021-09-29 14:16 -0500 luis mayta o fix: DOPS-351 generator task for go
+```
+
+```diff 1 title="Tracking commits git"
+```
+
+</CodeSurfer>
+
+---
+
+### Don't know change impact
+
+<Appear>
+
+- terraform plan
+- terraform apply
+- terraform destroy
+
+</Appear>
+
+---
+
+### Terraform Apply
+
+---
+
+<CodeSurfer>
+
+```bash showNumbers
+  # module.rancher.null_resource.provision_core will be created
+  + resource "null_resource" "provision_core" {
+      + id       = (known after apply)
+      + triggers = (known after apply)
+    }
+
+  # module.rancher.null_resource.provision_docker[0] will be created
+  + resource "null_resource" "provision_docker" {
+      + id       = (known after apply)
+      + triggers = (known after apply)
+    }
+
+Plan: 9 to add, 0 to change, 0 to destroy.
+```
+
+```diff 1:5 title="Resource to create"
+```
+
+```diff 13 title="Information change Impact"
+```
+
+</CodeSurfer>
+
+---
+
+### Need to revert a change
+
+<Appear>
+
+git checkout tag
+
+</Appear>
+
+---
+
+## Scaling Challenges
+
+---
+
+### Multiple environments for infrastructure
+
+---
+
+<CodeSurfer>
+
+```bash
+terraform workspace new stage
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```bash
+terragrunt apply --terragrunt-working-dir {{.REGION}}/{{.STAGE}} --terragrunt-source-update
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```bash showNumbers
+provision/terraform/us-east-1
+├── common.yml
+├── core
+│   ├── data.tf
+│   ├── deploy.tf
+│   ├── github.tf
+│   ├── groups.tf
+│   ├── main.tf
+│   ├── terragrunt.hcl
+├── staging
+│   ├── data.tf
+│   ├── deploy.tf
+│   ├── github.tf
+│   ├── groups.tf
+│   ├── main.tf
+│   ├── terragrunt.hcl
+├── production
+│   ├── data.tf
+│   ├── deploy.tf
+│   ├── github.tf
+│   ├── groups.tf
+│   ├── main.tf
+│   ├── terragrunt.hcl
+```
+
+```diff 3:9 title="Stage core"
+```
+
+```diff 10:16 title="Stage staging"
+```
+
+```diff 17:23 title="Stage production"
+```
+
+</CodeSurfer>
+
+---
+
+### Duplicate code
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+module "project_readme" {
+  source = "git::https://gitlab.infosisglobal.com/devops-toolkit/terraform-gitlab-project.git?ref=develop"
+  ...
+}
+
+module "project_readme" {
+  source = "infosisarg/project/gitlab"
+  version = "develop"
+}
+```
+
+```diff 1:2 title="Import module by git"
+```
+
+```diff 6:8 title="Import module by namespace"
+```
+
+</CodeSurfer>
+
+---
+
+- [Modules](https://registry.terraform.io/browse/modules)
+
+---
+
+### Managing secrets
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+resource "aws_db_instance" "example" {
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  name                 = "example"
+  # DO NOT DO THIS!!!
+  username = "admin"
+  password = "password"
+  # DO NOT DO THIS!!!
+}
+```
+
+```diff 6:9 title="do NOT hard-code your database credentials"
+```
+
+</CodeSurfer>
+
+---
+
+- [AWS KMS](https://aws.amazon.com/kms/KMS)
+- [SOPS](https://github.com/mozilla/sops)
+- ...
+
+---
+
+- [SOPS](https://github.com/mozilla/sops)
+
+---
+
+<CodeSurfer>
+
+```yaml showNumbers
+keys:
+  - &infrastructure 8589224DCEDE55F0CDD9FA6C4339A0A5AACCBE16
+creation_rules:
+  - path_regex: .*/secrets/.*\.(enc|yml|yaml)$
+    key_groups:
+      - pgp:
+          - *infrastructure
+```
+
+```diff 1:2 title="Key pgp public"
+```
+
+```diff 3:7 title="Implement rules for secrets files"
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```yaml showNumbers
+db:
+    username: ENC[AES256_GCM,data:dZtfXGj1+kCcItw=,iv:...,tag:...type:str]
+    password: ENC[AES256_GCM,data:...,iv:...,tag:...,type:str]
+```
+
+```diff 2 title="Values for username encrypted"
+```
+
+```diff 3 title="Values for password encrypted"
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```hcl showNumbers
+locals {
+  secrets = yamldecode(sops_decrypt_file(("secrets.yml")))
+}
+```
+
+```diff 2 title="import values encrypted"
+```
+
+
+```hcl showNumbers
+inputs = {
+  username = local.secrets.db.username
+  password = local.secrets.db.password
+}
+```
+
+```diff 2 title="pass username inputs to your Terraform"
+```
+
+```diff 3 title="pass password as inputs to your Terraform"
+```
+
+```hcl showNumbers
+variable "username" {
+  description = "The username for the DB master user"
+  type        = string
+  sensitive = true
+}
+
+variable "password" {
+  description = "The password for the DB master user"
+  type        = string
+  sensitive = true
+}
+```
+
+```diff 4 title="Enabled sensitive"
+```
+
+```hcl showNumbers
+resource "aws_db_instance" "example" {
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  name                 = "example"
+  # Set the secrets from variables
+  username = var.username
+  password = var.password
+}
+```
+
+```diff 7:8 title="Implement values database"
+```
+
+</CodeSurfer>
+
+---
+
+### Infrastructure Testing
+
+---
+
+- [Terratest](https://terratest.gruntwork.io)
+
+---
+
+<CodeSurfer>
+
+```go showNumbers
+package test
+
+import (
+	"testing"
+
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestBasicSuccess(t *testing.T) {
+	t.Parallel()
+
+	name := "name server"
+
+	terraformOptions := &terraform.Options{
+		// The path to where your Terraform code is located
+		TerraformDir: "instance-basic",
+		Upgrade:      true,
+		Vars: map[string]interface{}{
+			"name":        name,
+		},
+	}
+
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created
+	defer terraform.Destroy(t, terraformOptions)
+
+	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	terraform.InitAndApply(t, terraformOptions)
+	outputInstance := terraform.Output(t, terraformOptions, "instance")
+	assert.NotEmpty(t, outputInstance, outputInstance)
+}
+```
+
+```diff 6:7 title="Import Libraries"
+```
+
+```diff 15:22 title="Set values for module"
+```
+
+```diff 28 title="Execute terraform"
+```
+
+```diff 29:30 title="Validate response"
+```
+
+```diff 25 title="Destroy if an error occurs"
+```
+
+</CodeSurfer>
+
+---
+
+## Thank you
+
+<br/>
+
+#### [@luismayta](https://github.com/luismayta)
+
+<br/>
+
+#### `</Code>`
