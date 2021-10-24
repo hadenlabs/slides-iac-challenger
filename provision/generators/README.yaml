@@ -55,8 +55,9 @@ description: |-
 
   slides-iac-challenger for project
 
-  ### Replace name project to New Project
-
+# How to use this project
+usage: |-
   ```bash
-    agr 'slides-iac-challenger' 'new-project'
+  task setup
+  yarn start
   ```
