@@ -1,8 +1,8 @@
-<!-- Space: SlidesTemplate -->
+<!-- Space: SlidesIacChallenger -->
 <!-- Parent: Project -->
 <!-- Title: Commands -->
 
-<!-- Label: SlidesTemplate -->
+<!-- Label: SlidesIacChallenger -->
 <!-- Label: Project -->
 <!-- Label: Commands -->
 <!-- Include: docs/disclaimer.md -->

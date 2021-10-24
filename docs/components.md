@@ -1,8 +1,8 @@
-<!-- Space: SlidesTemplate -->
+<!-- Space: SlidesIacChallenger -->
 <!-- Parent: Project -->
 <!-- Title: Components -->
 
-<!-- Label: SlidesTemplate -->
+<!-- Label: SlidesIacChallenger -->
 <!-- Label: Project -->
 <!-- Label: Components -->
 <!-- Include: docs/disclaimer.md -->
