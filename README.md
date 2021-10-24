@@ -1,4 +1,4 @@
- <!-- Space: SlidesTemplate -->
+ <!-- Space: SlidesIacChallenger -->
 <!-- Title: Project -->
 
 <!--
@@ -15,16 +15,16 @@
 
   -->
 
-[![Latest Release](https://img.shields.io/github/release/hadenlabs/slides-template)](https://github.com/hadenlabs/slides-template/releases) [![Lint](https://img.shields.io/github/workflow/status/hadenlabs/slides-template/lint-code)](https://github.com/hadenlabs/slides-template/actions?workflow=lint-code) [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://conventionalcommits.org) [![KeepAChangelog](https://img.shields.io/badge/Keep%20A%20Changelog-1.0.0-%23E05735)](https://keepachangelog.com)
+[![Latest Release](https://img.shields.io/github/release/hadenlabs/slides-iac-challenger)](https://github.com/hadenlabs/slides-iac-challenger/releases) [![Lint](https://img.shields.io/github/workflow/status/hadenlabs/slides-iac-challenger/lint-code)](https://github.com/hadenlabs/slides-iac-challenger/actions?workflow=lint-code) [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://conventionalcommits.org) [![KeepAChangelog](https://img.shields.io/badge/Keep%20A%20Changelog-1.0.0-%23E05735)](https://keepachangelog.com)
 
-# slides-template
+# slides-iac-challenger
 
-slides-template for project
+slides-iac-challenger for project
 
 ### Replace name project to New Project
 
 ```bash
-  agr 'slides-template' 'new-project'
+  agr 'slides-iac-challenger' 'new-project'
 ```
 
 ## Requirements
@@ -40,13 +40,13 @@ This is a list of plugins that need to be installed previously to enjoy all the 
 
 **Got a question?**
 
-File a GitHub [issue](https://github.com/hadenlabs/slides-template/issues).
+File a GitHub [issue](https://github.com/hadenlabs/slides-iac-challenger/issues).
 
 ## Contributing
 
 ### Bug Reports & Feature Requests
 
-Please use the [issue tracker](https://github.com/hadenlabs/slides-template/issues) to report any bugs or file feature requests.
+Please use the [issue tracker](https://github.com/hadenlabs/slides-iac-challenger/issues) to report any bugs or file feature requests.
 
 ### Development
 
@@ -88,6 +88,6 @@ All other trademarks referenced herein are the property of their respective owne
 
 The code and styles are licensed under the LGPL-3.0 license [See project license.](LICENSE).
 
-## Don't forget to 🌟 Star 🌟 the repo if you like slides-template
+## Don't forget to 🌟 Star 🌟 the repo if you like slides-iac-challenger
 
-[Your feedback is appreciated](https://github.com/hadenlabs/slides-template/issues)
+[Your feedback is appreciated](https://github.com/hadenlabs/slides-iac-challenger/issues)
